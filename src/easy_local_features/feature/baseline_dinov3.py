@@ -101,8 +101,14 @@ class DINOv3_baseline(BaseExtractor):
                 "and set conf={'source': 'local', 'repo_dir': <path>, 'weights_path': <ckpt>}"
             )
 
-        # Patch/stride size heuristic based on ViT-*/16 variants; used for grid sampling.
-        self.vit_size = 16 if "16" in conf.weights else 14
+        # Stride between input image pixels and feature map cells, used for grid sampling.
+        # ViT-*/16 variants: 16. ConvNeXt variants: 32 (4x stem + 2x * 3 downsample stages).
+        if "convnext" in conf.weights:
+            self.vit_size = 32
+        elif "16" in conf.weights:
+            self.vit_size = 16
+        else:
+            self.vit_size = 14
 
         # Try to prepare a local weights path (auto-download for supported variants).
         self._maybe_prepare_weights()
@@ -202,17 +208,17 @@ class DINOv3_baseline(BaseExtractor):
         img = self._apply_normalization(img, norm_mode)
 
         if self.conf.allow_resize:
-            # ensure divisible by patch size for ViT
+            # ensure divisible by stride (16 for ViT-*/16, 32 for ConvNeXt)
             patch = self.vit_size
             img = F.interpolate(img, [int(x // patch * patch) for x in img.shape[-2:]])
 
-        # Only ViT-style backbones expose get_intermediate_layers; guard for ConvNeXt
         if not hasattr(self.model, "get_intermediate_layers"):
             raise NotImplementedError(
-                "DINOv3_baseline currently supports ViT backbones (dinov3_vit*)."
+                f"DINOv3 backbone '{self.conf.weights}' does not expose get_intermediate_layers."
             )
 
-        # DINOv3 ViT exposes get_intermediate_layers similar to DINOv2
+        # Both ViT and ConvNeXt DINOv3 backbones expose get_intermediate_layers.
+        # For ConvNeXt, the "class token" is the global pooled representation.
         desc, cls_token = self.model.get_intermediate_layers(
             img, n=1, return_class_token=True, reshape=True
         )[0]
@@ -253,17 +259,17 @@ class DINOv3_baseline(BaseExtractor):
         img = self._apply_normalization(img, norm_mode)
 
         if self.conf.allow_resize:
-            # ensure divisible by patch size for ViT
+            # ensure divisible by stride (16 for ViT-*/16, 32 for ConvNeXt)
             patch = self.vit_size
             img = F.interpolate(img, [int(x // patch * patch) for x in img.shape[-2:]])
 
-        # Only ViT-style backbones expose get_intermediate_layers; guard for ConvNeXt
         if not hasattr(self.model, "get_intermediate_layers"):
             raise NotImplementedError(
-                "DINOv3_baseline currently supports ViT backbones (dinov3_vit*)."
+                f"DINOv3 backbone '{self.conf.weights}' does not expose get_intermediate_layers."
             )
 
-        # DINOv3 ViT exposes get_intermediate_layers similar to DINOv2
+        # Both ViT and ConvNeXt DINOv3 backbones expose get_intermediate_layers.
+        # For ConvNeXt, the "class token" is the global pooled representation.
         desc, cls_token = self.model.get_intermediate_layers(
             img, n=1, return_class_token=True, reshape=True
         )[0]
@@ -313,7 +319,7 @@ class DINOv3_baseline(BaseExtractor):
             # Satellite ViT weights
             "dinov3_sat_vitl16": "dinov3_vitl16_pretrain_sat493m-eadcf0ff.pth",
             "dinov3_sat_vit7b16": "dinov3_vit7b16_pretrain_sat493m-a6675841.pth",
-            # ConvNeXt family (note: compute() currently only supports ViT backbones)
+            # ConvNeXt family (compute() uses stride=32 for these backbones)
             "dinov3_convnext_tiny": "dinov3_convnext_tiny_pretrain_lvd1689m-21b726bb.pth",
             "dinov3_convnext_small": "dinov3_convnext_small_pretrain_lvd1689m-296db49d.pth",
             "dinov3_convnext_base": "dinov3_convnext_base_pretrain_lvd1689m-801f2ba9.pth",
