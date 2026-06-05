@@ -402,7 +402,7 @@ wheels = [
 
 [[package]]
 name = "easy-local-features"
-version = "0.8.27"
+version = "0.8.28"
 source = { editable = "." }
 dependencies = [
     { name = "e2cnn" },
