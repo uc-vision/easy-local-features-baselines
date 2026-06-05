@@ -134,7 +134,7 @@ easy-local-features --describe superpoint
 from easy_local_features import available_extractors, available_detectors, available_methods
 
 print(available_extractors)  # ['alike', 'aliked', 'd2net', 'deal', ...]
-print(available_detectors)   # ['dad', 'rekd']
+print(available_detectors)   # ['dad', 'raco', 'rekd']
 print(available_methods)     # all of the above + dinov2, dinov3, resnet, ...
 ```
 

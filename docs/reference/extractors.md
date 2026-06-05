@@ -361,6 +361,25 @@ detector = getDetector("dad", {
 })
 ```
 
+### RaCo
+
+**Key:** `"raco"`
+
+Predicts keypoints with detection scores, ranking scores (matching reliability), and 2×2 covariance matrices (spatial uncertainty). Very lightweight (~0.5M params). Use `detect(img, return_dict=True)` to get the extra outputs.
+
+```python
+detector = getDetector("raco", {
+    "max_num_keypoints": 2048,     # Number of keypoints to detect
+    "nms_radius": 3,               # NMS radius (must be odd)
+    "subpixel_sampling": True,     # Sub-pixel keypoint refinement
+    "subpixel_temp": 0.5,          # Softmax temperature for subpixel offsets
+    "ranker": True,                # Predict ranking scores
+    "covariance_estimator": True,  # Predict 2x2 covariance per keypoint
+    "sort_by_ranker": False,       # Sort outputs by ranking score
+    "resize": None,                # Resize long edge before inference (None = no resize)
+})
+```
+
 ### REKD
 
 **Key:** `"rekd"`

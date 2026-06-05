@@ -61,6 +61,27 @@ m4 = lg.match(img0, img1)
 print(f"LightGlue:      {len(m4['mkpts0'])} matches")
 ```
 
+## Timing a detector across image sizes
+
+`scripts/benchmark_raco_mps.py` times RaCo detection at common resolutions with proper device synchronization (`torch.mps.synchronize` / `torch.cuda.synchronize`) and warmup iterations:
+
+```bash
+python scripts/benchmark_raco_mps.py --device mps --warmup 5 --iters 20 --top_k 2048
+```
+
+### RaCo reference results (Apple Silicon, MPS)
+
+RaCo is very lightweight: ~0.5M parameters (~2 MB fp32). Timings below are for the full pipeline (detector + ranker + covariance heads), `top_k=2048`, 20 iterations:
+
+| Size | Resolution | Mean (ms) | Std (ms) | FPS |
+|------|------------|----------:|---------:|----:|
+| VGA  | 640×480    | 54.2      | 0.9      | 18.4 |
+| HD   | 1280×720   | 160.6     | 0.8      | 6.2  |
+| FHD  | 1920×1080  | 354.7     | 0.8      | 2.8  |
+| QHD  | 2560×1440  | 683.5     | 100.9    | 1.5  |
+
+Runtime scales roughly linearly with pixel count (~5.8 µs/kpixel), so expect ~1.4 s/image at 4K. Disable the extra heads (`{"ranker": False, "covariance_estimator": False}`) if you only need keypoints.
+
 ## Pose evaluation
 
 The library includes a pose evaluation pipeline:

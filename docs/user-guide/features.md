@@ -6,7 +6,7 @@ The library supports four types of feature methods:
 |------|-------------|-----------------|
 | **Detect+Describe** | Finds keypoints and computes descriptors | SuperPoint, ALIKED, DISK, XFeat, ORB |
 | **Descriptor-only** | Computes descriptors for given keypoints | SOSNet, TFeat, DINOv2, DINOv3 |
-| **Detector-only** | Finds keypoints only (no descriptors) | DAD, REKD |
+| **Detector-only** | Finds keypoints only (no descriptors) | DAD, RaCo, REKD |
 | **End-to-end matcher** | Directly matches two images | LightGlue, SuperGlue, LoFTR, RoMa |
 
 ## Detect+Describe methods
@@ -142,7 +142,19 @@ matches = desc.match(img0, img1)
 | Name | Key | Config keys |
 |------|-----|-------------|
 | DAD | `"dad"` | `num_keypoints`, `resize`, `nms_size` |
+| RaCo | `"raco"` | `max_num_keypoints`, `nms_radius`, `subpixel_sampling`, `ranker`, `covariance_estimator`, `sort_by_ranker`, `resize` |
 | REKD | `"rekd"` | `num_keypoints`, `pyramid_levels`, `upsampled_levels`, `border_size`, `nms_size` |
+
+RaCo additionally predicts per-keypoint ranking scores (matching reliability) and 2×2 covariance matrices (spatial uncertainty):
+
+```python
+det = getDetector("raco", {"max_num_keypoints": 2048}).to("cpu")
+out = det.detect(img, return_dict=True)
+out["mkpts"]          # [1, N, 2] keypoints (x, y)
+out["scores"]         # [1, N] detection scores
+out["ranker_scores"]  # [1, N] matching reliability scores
+out["covariances"]    # [1, N, 2, 2] spatial uncertainty
+```
 
 ## End-to-end matchers
 

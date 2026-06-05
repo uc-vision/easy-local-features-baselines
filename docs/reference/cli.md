@@ -52,6 +52,7 @@ easy-local-features --list-detectors
 Output:
 ```
 dad
+raco
 rekd
 ```
 
