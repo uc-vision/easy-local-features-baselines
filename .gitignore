@@ -137,3 +137,4 @@ output/
 data/
 *.pth
 dino.sh
+scripts/benchmark_raco_mps.py

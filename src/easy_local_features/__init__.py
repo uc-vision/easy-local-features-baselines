@@ -37,6 +37,7 @@ available_extractors = [
 
 available_detectors = [
     "dad",
+    "raco",
     "rekd",
 ]
 
@@ -149,6 +150,7 @@ if TYPE_CHECKING:
     from easy_local_features.feature.baseline_romav2 import RoMaV2_baseline, ROMAV2Config
     from easy_local_features.feature.baseline_roma import RoMa_baseline, ROMAConfig
     from easy_local_features.feature.baseline_dad import DAD_baseline, DadConfig
+    from easy_local_features.feature.baseline_raco import RACO_baseline, RaCoConfig
     from easy_local_features.feature.baseline_rekd import REKD_baseline
 
     @overload
@@ -165,6 +167,8 @@ if TYPE_CHECKING:
     def getMethod(name: Literal["roma"], conf: ROMAConfig = ...) -> RoMa_baseline: ...
     @overload
     def getMethod(name: Literal["dad"], conf: DadConfig = ...) -> DAD_baseline: ...
+    @overload
+    def getMethod(name: Literal["raco"], conf: RaCoConfig = ...) -> RACO_baseline: ...
     @overload
     def getMethod(name: Literal["rekd"], conf: Dict[str, Any] = ...) -> REKD_baseline: ...
 
@@ -183,6 +187,8 @@ if TYPE_CHECKING:
 
     @overload
     def getDetector(detector_name: Literal["dad"], conf: DadConfig = ...) -> DAD_baseline: ...
+    @overload
+    def getDetector(detector_name: Literal["raco"], conf: RaCoConfig = ...) -> RACO_baseline: ...
     @overload
     def getDetector(detector_name: Literal["rekd"], conf: Dict[str, Any] = ...) -> REKD_baseline: ...
 
